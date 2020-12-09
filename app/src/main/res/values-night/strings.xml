@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="enter_email">Enter email</string>
+    <string name="full_address">Full address</string>
+    <string name="enter_full_address">Enter full address</string>
+    <string name="name_of_university">Name of the university</string>
+    <string name="enter_name_of_university">Enter university name</string>
+    <string name="graduation_year">Graduation year</string>
+    <string name="enter_graduation_year">Enter graduation year</string>
+    <string name="cgpa">CGPA</string>
+    <string name="enter_cgpa">Enter CGPA</string>
+    <string name="experience_in_months">Experience in months</string>
+    <string name="enter_experience">Enter your experience</string>
+    <string name="current_work_place_name">Current organisation</string>
+    <string name="enter_current_organisation">Enter current organisation name</string>
+    <string name="expected_salary">Expected salary</string>
+    <string name="enter_expected_salary">Enter expected salary</string>
+    <string name="field_buzz_reference">Field buzz reference</string>
+    <string name="enter_field_buzz_reference">Enter field buzz reference</string>
+    <string name="github_project_url">Github project url</string>
+    <string name="enter_github_project_url">Enter github project url</string>
+</resources>
