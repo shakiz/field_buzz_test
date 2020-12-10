@@ -25,7 +25,9 @@
             android:theme="@style/Field_buzz_test"
             android:label="@string/login"/>
         <activity
-            android:name=".activities.MainActivity" />
+            android:name=".activities.MainActivity"
+            android:theme="@style/Field_buzz_test"
+            android:label="@string/home" />
     </application>
 
 </manifest>
