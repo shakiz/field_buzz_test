@@ -20,4 +20,5 @@
     <string name="github_project_url">Github project url</string>
     <string name="enter_github_project_url">Enter github project url</string>
     <string name="home">Home</string>
+    <string name="applying_in">Applying In</string>
 </resources>

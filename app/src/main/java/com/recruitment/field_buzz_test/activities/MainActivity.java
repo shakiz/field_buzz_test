@@ -3,6 +3,8 @@ package com.recruitment.field_buzz_test.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ArrayAdapter;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 import com.recruitment.field_buzz_test.R;
@@ -17,6 +19,7 @@ public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding activityMainBinding;
     private Map<String, String[]> validationMap = new HashMap<String, String[]>();
     private Validation validation;
+    private String[] applying_in_data = new String[]{"Android","Backend"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,7 +41,16 @@ public class MainActivity extends AppCompatActivity {
 
     //region perform UI interactions
     private void bindUIWithComponents() {
+        //region applying in spinner adapter
+        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, applying_in_data);
+        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        activityMainBinding.applyingIn.setAdapter(dataAdapter);
+        //endregion
+
+        //region validation
         configureMasterValidation();
+        //endregion
+
         //region add new record click listener
         activityMainBinding.addNewRecord.setOnClickListener(new View.OnClickListener() {
             @Override
