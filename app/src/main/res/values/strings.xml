@@ -56,4 +56,6 @@
     <string name="enter_github_project_url">Enter github project url</string>
     <string name="home">Home</string>
     <string name="applying_in">Applying In</string>
+    <string name="attach_cv_file">Attach CV file</string>
+    <string name="click_here_to_attach_cv">Click here to attach CV</string>
 </resources>

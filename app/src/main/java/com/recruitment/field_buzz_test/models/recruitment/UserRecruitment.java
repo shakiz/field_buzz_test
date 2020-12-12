@@ -15,8 +15,11 @@ public class UserRecruitment {
     private int expected_salary;
     private String field_buzz_reference;
     private String github_project_url;
+    private CvFile cv_file;
     private long on_spot_update_time;
     private long on_spot_creation_time;
+    private Boolean success;
+    private String message;
 
     public String getTsync_id() {
         return tsync_id;
@@ -144,5 +147,29 @@ public class UserRecruitment {
 
     public void setOn_spot_creation_time(long on_spot_creation_time) {
         this.on_spot_creation_time = on_spot_creation_time;
+    }
+
+    public CvFile getCv_file() {
+        return cv_file;
+    }
+
+    public void setCv_file(CvFile cv_file) {
+        this.cv_file = cv_file;
+    }
+
+    public Boolean getSuccess() {
+        return success;
+    }
+
+    public void setSuccess(Boolean success) {
+        this.success = success;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 }
