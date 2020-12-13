@@ -2,8 +2,10 @@ package com.recruitment.field_buzz_test.activities;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -23,13 +25,18 @@ import com.recruitment.field_buzz_test.utils.PrefManager;
 import com.recruitment.field_buzz_test.utils.RecruitmentCallBack;
 import com.recruitment.field_buzz_test.utils.Validation;
 import com.recruitment.field_buzz_test.viewmodels.RecruitmentViewModel;
+import com.recruitment.field_buzz_test.viewmodels.SendFileViewModel;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+
 import static com.recruitment.field_buzz_test.utils.Constants.ACTIVITY_CHOOSE_FILE;
-import static com.recruitment.field_buzz_test.utils.Constants.mFileTokenId;
 import static com.recruitment.field_buzz_test.utils.Constants.mToken;
 
 public class MainActivity extends AppCompatActivity {
@@ -40,8 +47,11 @@ public class MainActivity extends AppCompatActivity {
     private String[] applying_in_array = new String[]{"Android","Backend"};
     private String applying_in_str = "";
     private RecruitmentViewModel recruitmentViewModel;
+    private SendFileViewModel sendFileViewModel;
     private ProgressDialog dialog;
     private int mFileTokenId;
+    private String cvPath = "";
+    private File cvPdfFile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
         validation = new Validation(this, validationMap);
         dialog = new ProgressDialog(MainActivity.this);
         recruitmentViewModel = ViewModelProviders.of(this).get(RecruitmentViewModel.class);
+        sendFileViewModel = ViewModelProviders.of(this).get(SendFileViewModel.class);
     }
     //endregion
 
@@ -133,8 +144,22 @@ public class MainActivity extends AppCompatActivity {
                             }
                             if (recruitmentResponse.getCv_file() != null){
                                 mFileTokenId = recruitmentResponse.getCv_file().getId();
+                                //region
+                                RequestBody reqFile = RequestBody.create(MediaType.parse("application/pdf"), cvPdfFile);
+                                MultipartBody.Part photo = MultipartBody.Part.createFormData("pdf", cvPdfFile.getName(), reqFile);
+                                //endregion
                                 //region call for next api to send file object TODO
+                                sendFileViewModel.sendFile(mFileTokenId, null, prefManager.getString(mToken), new SendFileViewModel.onFileSend() {
+                                    @Override
+                                    public void successFul(CvFile cvFile) {
+                                        Toast.makeText(MainActivity.this, cvFile.getMessage(), Toast.LENGTH_SHORT).show();
+                                    }
 
+                                    @Override
+                                    public void unsuccessful(String message) {
+                                        Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT).show();
+                                    }
+                                });
                                 //endregion
                             }
                         }
@@ -158,22 +183,19 @@ public class MainActivity extends AppCompatActivity {
     private void configureMasterValidation() {
         validation.setEditTextIsNotEmpty(
                 new String[]{"name", "email","phone","full_address","name_of_university","graduation_year","cgpa","experience_in_months","current_work_place_name",
-                        "expected_salary","github_project_url"},
+                        "expected_salary","github_project_url","cv_file"},
                 new String[]{"Please enter name","Please enter email","Please enter mobile no","Please provide full address","Provide your university name",
                         "Please give your graduation year","Please enter your cgpa","Please enter experience you have","Please provide your current organisation",
-                        "Please give your expected salary","Provide your project git url"}
+                        "Please give your expected salary","Provide your project git url","Please atatch your CV"}
         );
     }
     //endregion
 
     public void onBrowse() {
-        Intent chooseFile;
-        Intent intent;
-        chooseFile = new Intent(Intent.ACTION_GET_CONTENT);
-        chooseFile.addCategory(Intent.CATEGORY_OPENABLE);
-        chooseFile.setType("text/plain");
-        intent = Intent.createChooser(chooseFile, "Choose a file");
-        startActivityForResult(intent, ACTIVITY_CHOOSE_FILE);
+        Intent chooseFile = new Intent(Intent.ACTION_GET_CONTENT);
+        chooseFile.setType("*/*");
+        chooseFile = Intent.createChooser(chooseFile, "Choose a file");
+        startActivityForResult(chooseFile, ACTIVITY_CHOOSE_FILE);
     }
 
     //region activity components
@@ -182,9 +204,16 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode != RESULT_OK) return;
-        String path = "";
         if(requestCode == ACTIVITY_CHOOSE_FILE) {
-            Uri uri = data.getData();
+            Uri uploadfileuri = data.getData();
+            cvPath = getPath(uploadfileuri);
+            if (cvPath != null){
+                cvPdfFile = new File(cvPath);
+                activityMainBinding.cvFile.setText(cvPdfFile.getName());
+            }
+            else{
+                Toast.makeText(this, "CV not attached", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
@@ -196,4 +225,23 @@ public class MainActivity extends AppCompatActivity {
         startActivity(exitIntent);
     }
     //endregion
+
+    public String getPath(Uri uri) {
+
+        String path = null;
+        String[] projection = { MediaStore.Files.FileColumns.DATA };
+        Cursor cursor = getContentResolver().query(uri, projection, null, null, null);
+
+        if(cursor == null){
+            path = uri.getPath();
+        }
+        else{
+            cursor.moveToFirst();
+            int column_index = cursor.getColumnIndexOrThrow(projection[0]);
+            path = cursor.getString(column_index);
+            cursor.close();
+        }
+
+        return ((path == null || path.isEmpty()) ? (uri.getPath()) : path);
+    }
 }
