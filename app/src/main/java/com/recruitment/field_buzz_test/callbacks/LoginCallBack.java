@@ -1,4 +1,4 @@
-package com.recruitment.field_buzz_test.utils;
+package com.recruitment.field_buzz_test.callbacks;
 
 import com.recruitment.field_buzz_test.models.login.LoginResponse;
 

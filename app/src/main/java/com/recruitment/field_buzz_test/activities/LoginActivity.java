@@ -12,7 +12,7 @@ import androidx.lifecycle.ViewModelProviders;
 import com.recruitment.field_buzz_test.R;
 import com.recruitment.field_buzz_test.models.login.LoginResponse;
 import com.recruitment.field_buzz_test.models.login.LoginUser;
-import com.recruitment.field_buzz_test.utils.LoginCallBack;
+import com.recruitment.field_buzz_test.callbacks.LoginCallBack;
 import com.recruitment.field_buzz_test.utils.PrefManager;
 import com.recruitment.field_buzz_test.viewmodels.LoginViewModel;
 import static com.recruitment.field_buzz_test.utils.Constants.mIsLoggedIn;

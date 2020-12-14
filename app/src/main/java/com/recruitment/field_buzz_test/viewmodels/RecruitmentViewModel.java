@@ -9,7 +9,7 @@ import androidx.lifecycle.AndroidViewModel;
 import com.google.gson.Gson;
 import com.recruitment.field_buzz_test.apiutils.AllApiService;
 import com.recruitment.field_buzz_test.models.recruitment.UserRecruitment;
-import com.recruitment.field_buzz_test.utils.RecruitmentCallBack;
+import com.recruitment.field_buzz_test.callbacks.RecruitmentCallBack;
 
 import retrofit2.Call;
 import retrofit2.Callback;

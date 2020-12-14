@@ -40,7 +40,7 @@ public class SendFileViewModel extends AndroidViewModel {
 
             @Override
             public void onFailure(Call<CvFile> call, Throwable t) {
-                onFileSend.unsuccessful("File sending failed..");
+                onFileSend.unsuccessful("File sending failed..\n"+t.getMessage());
             }
         });
     }

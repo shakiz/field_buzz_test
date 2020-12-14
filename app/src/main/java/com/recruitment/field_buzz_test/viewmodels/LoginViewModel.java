@@ -7,7 +7,7 @@ import androidx.lifecycle.AndroidViewModel;
 import com.recruitment.field_buzz_test.apiutils.AllApiService;
 import com.recruitment.field_buzz_test.models.login.LoginResponse;
 import com.recruitment.field_buzz_test.models.login.LoginUser;
-import com.recruitment.field_buzz_test.utils.LoginCallBack;
+import com.recruitment.field_buzz_test.callbacks.LoginCallBack;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;

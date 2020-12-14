@@ -1,11 +1,11 @@
 package com.recruitment.field_buzz_test.activities;
 
+import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.database.Cursor;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -14,15 +14,18 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProviders;
 
 import com.recruitment.field_buzz_test.R;
+import com.recruitment.field_buzz_test.callbacks.RecruitmentCallBack;
 import com.recruitment.field_buzz_test.databinding.ActivityMainBinding;
 import com.recruitment.field_buzz_test.models.recruitment.CvFile;
 import com.recruitment.field_buzz_test.models.recruitment.UserRecruitment;
 import com.recruitment.field_buzz_test.utils.PrefManager;
-import com.recruitment.field_buzz_test.utils.RecruitmentCallBack;
+import com.recruitment.field_buzz_test.utils.Tools;
 import com.recruitment.field_buzz_test.utils.Validation;
 import com.recruitment.field_buzz_test.viewmodels.RecruitmentViewModel;
 import com.recruitment.field_buzz_test.viewmodels.SendFileViewModel;
@@ -52,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
     private int mFileTokenId;
     private String cvPath = "";
     private File cvPdfFile;
+    private Tools tools;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +73,7 @@ public class MainActivity extends AppCompatActivity {
         prefManager = new PrefManager(this);
         validation = new Validation(this, validationMap);
         dialog = new ProgressDialog(MainActivity.this);
+        tools = new Tools(this);
         recruitmentViewModel = ViewModelProviders.of(this).get(RecruitmentViewModel.class);
         sendFileViewModel = ViewModelProviders.of(this).get(SendFileViewModel.class);
     }
@@ -76,6 +81,13 @@ public class MainActivity extends AppCompatActivity {
 
     //region perform UI interactions
     private void bindUIWithComponents() {
+        //region ask for permission
+        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(MainActivity.this, "Please allow storage permission", Toast.LENGTH_SHORT).show();
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},007);
+        }
+        //endregion
+
         //region applying in spinner adapter
         ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, applying_in_array);
         dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -143,21 +155,29 @@ public class MainActivity extends AppCompatActivity {
                                 dialog.dismiss();
                             }
                             if (recruitmentResponse.getCv_file() != null){
+                                dialog.setMessage("Sending file to server....");
+                                dialog.show();
                                 mFileTokenId = recruitmentResponse.getCv_file().getId();
-                                //region
+                                //region create request body for file attachment
                                 RequestBody reqFile = RequestBody.create(MediaType.parse("application/pdf"), cvPdfFile);
-                                MultipartBody.Part photo = MultipartBody.Part.createFormData("pdf", cvPdfFile.getName(), reqFile);
+                                MultipartBody.Part file = MultipartBody.Part.createFormData("pdf", cvPdfFile.getName(), reqFile);
                                 //endregion
                                 //region call for next api to send file object TODO
-                                sendFileViewModel.sendFile(mFileTokenId, null, prefManager.getString(mToken), new SendFileViewModel.onFileSend() {
+                                sendFileViewModel.sendFile(mFileTokenId, file, prefManager.getString(mToken), new SendFileViewModel.onFileSend() {
                                     @Override
                                     public void successFul(CvFile cvFile) {
                                         Toast.makeText(MainActivity.this, cvFile.getMessage(), Toast.LENGTH_SHORT).show();
+                                        if (dialog.isShowing()) {
+                                            dialog.dismiss();
+                                        }
                                     }
 
                                     @Override
                                     public void unsuccessful(String message) {
                                         Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT).show();
+                                        if (dialog.isShowing()) {
+                                            dialog.dismiss();
+                                        }
                                     }
                                 });
                                 //endregion
@@ -191,22 +211,23 @@ public class MainActivity extends AppCompatActivity {
     }
     //endregion
 
+    //region open file chooser
     public void onBrowse() {
         Intent chooseFile = new Intent(Intent.ACTION_GET_CONTENT);
         chooseFile.setType("*/*");
         chooseFile = Intent.createChooser(chooseFile, "Choose a file");
         startActivityForResult(chooseFile, ACTIVITY_CHOOSE_FILE);
     }
+    //endregion
 
     //region activity components
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode != RESULT_OK) return;
         if(requestCode == ACTIVITY_CHOOSE_FILE) {
             Uri uploadfileuri = data.getData();
-            cvPath = getPath(uploadfileuri);
+            cvPath = tools.getPath(uploadfileuri);
             if (cvPath != null){
                 cvPdfFile = new File(cvPath);
                 activityMainBinding.cvFile.setText(cvPdfFile.getName());
@@ -225,23 +246,4 @@ public class MainActivity extends AppCompatActivity {
         startActivity(exitIntent);
     }
     //endregion
-
-    public String getPath(Uri uri) {
-
-        String path = null;
-        String[] projection = { MediaStore.Files.FileColumns.DATA };
-        Cursor cursor = getContentResolver().query(uri, projection, null, null, null);
-
-        if(cursor == null){
-            path = uri.getPath();
-        }
-        else{
-            cursor.moveToFirst();
-            int column_index = cursor.getColumnIndexOrThrow(projection[0]);
-            path = cursor.getString(column_index);
-            cursor.close();
-        }
-
-        return ((path == null || path.isEmpty()) ? (uri.getPath()) : path);
-    }
 }
