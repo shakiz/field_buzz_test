@@ -154,6 +154,7 @@ public class MainActivity extends AppCompatActivity {
                             if (dialog.isShowing()) {
                                 dialog.dismiss();
                             }
+                            //region send file to server after getting file id
                             if (recruitmentResponse.getCv_file() != null){
                                 dialog.setMessage("Sending file to server....");
                                 dialog.show();
@@ -182,6 +183,7 @@ public class MainActivity extends AppCompatActivity {
                                 });
                                 //endregion
                             }
+                            //endregion
                         }
 
                         @Override
@@ -206,7 +208,7 @@ public class MainActivity extends AppCompatActivity {
                         "expected_salary","github_project_url","cv_file"},
                 new String[]{"Please enter name","Please enter email","Please enter mobile no","Please provide full address","Provide your university name",
                         "Please give your graduation year","Please enter your cgpa","Please enter experience you have","Please provide your current organisation",
-                        "Please give your expected salary","Provide your project git url","Please atatch your CV"}
+                        "Please give your expected salary","Provide your project git url","Please attach your CV"}
         );
     }
     //endregion
@@ -240,10 +242,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        Intent exitIntent = new Intent(Intent.ACTION_MAIN);
-        exitIntent.addCategory(Intent.CATEGORY_HOME);
-        exitIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(exitIntent);
+        tools.exitApp();
     }
     //endregion
 }
