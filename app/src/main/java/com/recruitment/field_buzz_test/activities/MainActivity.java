@@ -228,8 +228,8 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode != RESULT_OK) return;
         if(requestCode == ACTIVITY_CHOOSE_FILE) {
-            Uri uploadfileuri = data.getData();
-            cvPath = tools.getPath(uploadfileuri);
+            Uri uploadFileUri = data.getData();
+            cvPath = tools.getPath(uploadFileUri);
             if (cvPath != null){
                 cvPdfFile = new File(cvPath);
                 activityMainBinding.cvFile.setText(cvPdfFile.getName());
